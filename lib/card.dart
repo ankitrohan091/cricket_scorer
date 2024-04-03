@@ -67,7 +67,10 @@ class _BatsmanCardState extends State<BatsmanCard> {
                   Text('SR'),
                 ]),
             TableRow(children: [
-              Text('Batsman 1'),
+              Text(
+                'Batsman 1',
+                maxLines: 1,
+              ),
               Text('0'),
               Text('0'),
               Text('0'),
@@ -75,7 +78,10 @@ class _BatsmanCardState extends State<BatsmanCard> {
               Text('0'),
             ]),
             TableRow(children: [
-              Text('Batsman 2'),
+              Text(
+                'Batsman 2',
+                maxLines: 1,
+              ),
               Text('0'),
               Text('0'),
               Text('0'),
@@ -107,18 +113,22 @@ class _BowlerCardState extends State<BowlerCard> {
         child: Table(
           children: const [
             TableRow(
-              decoration: BoxDecoration(
+                decoration: BoxDecoration(
                     border: Border(bottom: BorderSide(color: Colors.black))),
-              children: [
-              Text('Bowler'),
-              Text('Over'),
-              Text('M'),
-              Text('Run'),
-              Text('W'),
-              Text('ER')
-            ]),
+                children: [
+                  Text('Bowler'),
+                  Text('Over'),
+                  Text('M'),
+                  Text('Run'),
+                  Text('W'),
+                  Text('ER')
+                ]),
             TableRow(children: [
-              Text('Bowler name'),
+              Text(
+                'Bowler name',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               Text('0.0'),
               Text('0'),
               Text('0'),
