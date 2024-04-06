@@ -1,3 +1,4 @@
+import 'package:gully_cricket/models/player.dart';
 import 'package:gully_cricket/models/teams_card.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -7,7 +8,7 @@ class SqlHelper {
     await database.execute('PRAGMA foreign_keys = ON;');
 
     await database.execute('''CREATE TABLE Teams(
-            Team_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            Team_id TEXT PRIMARY KEY, 
             Team_name TEXT NOT NULL,
             Played_match INTEGER NOT NULL DEFAULT 0,
             Won INTEGER NOT NULL DEFAULT 0,
@@ -15,7 +16,7 @@ class SqlHelper {
         )''');
 
     await database.execute('''CREATE TABLE Player(
-      Player_id INTEGER PRIMARY KEY AUTOINCREMENT,
+      Player_id TEXT PRIMARY KEY,
       Player_name TEXT NOT NULL,
       Team_id INTEGER NOT NULL,
       Matches INTEGER NOT NULL DEFAULT 0,
@@ -24,8 +25,6 @@ class SqlHelper {
       Runs INTEGER NOT NULL DEFAULT 0,
       Not_out INTEGER NOT NULL DEFAULT 0,
       Best_batting TEXT,
-      Strike_rate DOUBLE NOT NULL DEFAULT 0.0,
-      Average_batting DOUBLE NOT NULL DEFAULT 0.0,
       Fours INTEGER NOT NULL DEFAULT 0,
       Sixes INTEGER NOT NULL DEFAULT 0,
       Thirty INTEGER NOT NULL DEFAULT 0,
@@ -38,8 +37,6 @@ class SqlHelper {
       Wicket INTEGER NOT NULL DEFAULT 0,
       Run_given INTEGER NOT NULL DEFAULT 0,
       Best_bowling TEXT,
-      Economy_rate DOUBLE NOT NULL DEFAULT 0.0,
-      Average_bowling DOUBLE NOT NULL DEFAULT 0.0,
       Wides INTEGER NOT NULL DEFAULT 0,
       No_ball INTEGER NOT NULL DEFAULT 0,
       Dot_balled INTEGER NOT NULL DEFAULT 0,
@@ -65,7 +62,7 @@ class SqlHelper {
     return db;
   }
 
-  static Future<List<String>> getPlayerName(int teamId) async {
+  static Future<List<String>> getPlayersName(String teamId) async {
     final db = await openingDatabase();
     final List<Map<String, dynamic>> names = await db
         .rawQuery('SELECT Player_name FROM Player WHERE Team_id=?', [teamId]);
@@ -81,17 +78,33 @@ class SqlHelper {
     final List<Map<String, dynamic>> teams =
         await db.rawQuery('SELECT * FROM Teams');
     return List.generate(teams.length, (index) {
-      return TeamsCard(
+      return TeamsCard.add(
           id: teams[index]['Team_id'],
           name: teams[index]['Team_name'],
-          mathces: teams[index]['Matches'],
+          mathces: teams[index]['Played_match'],
           won: teams[index]['Won'],
           loss: teams[index]['Loss']);
     });
   }
 
-  static Future<void> addTeam({required String teamName}) async {
+  static Future<void> addTeam({required TeamsCard team}) async {
     final db = await openingDatabase();
-    await db.rawInsert('INSERT INTO Teams(Team_name) VALUES (?)', [teamName]);
+    await db.rawInsert('INSERT INTO Teams(Team_name,Team_id) VALUES (?,?)',
+        [team.name, team.id]);
+  }
+
+  static Future<void> deleteTeam({required String id}) async {
+    final db = await openingDatabase();
+    await db.rawDelete('DELETE FROM Teams WHERE Team_id=?', [id]);
+  }
+
+  static Future<void> addPlayer({required Player player}) async {
+    final db = await openingDatabase();
+    await db.insert('Player', player.toMap());
+  }
+
+  static Future<void> deletePlayer({required String playerId}) async {
+    final db = await openingDatabase();
+    await db.rawDelete('DELETE FROM PLAYER WHERE Player_id = ?', [playerId]);
   }
 }

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:gully_cricket/database/sql_helper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gully_cricket/database/providers/team_provider.dart';
+import 'package:gully_cricket/models/teams_card.dart';
 import 'package:gully_cricket/screens/Home.dart';
 import 'package:gully_cricket/screens/history.dart';
 import 'package:gully_cricket/screens/team.dart';
 import 'package:gully_cricket/util/name_validator.dart';
 
-class Tabs extends StatefulWidget {
+class Tabs extends ConsumerStatefulWidget {
   const Tabs({super.key});
 
   @override
-  State<Tabs> createState() => _TabsState();
+  ConsumerState<Tabs> createState() => _TabsState();
 }
 
-class _TabsState extends State<Tabs> {
+class _TabsState extends ConsumerState<Tabs> {
   final nameController = TextEditingController();
   bool isSubmitted = false;
   bool isEmpty = true;
@@ -84,8 +86,12 @@ class _TabsState extends State<Tabs> {
                                           isEmpty = false;
                                           isInvalid = true;
                                         } else {
-                                          SqlHelper.addTeam(
-                                              teamName: nameController.text);
+                                          final team = TeamsCard(
+                                              name: nameController.text);
+                                          ref
+                                              .read(
+                                                  teamNotifierProvider.notifier)
+                                              .addTeam(team);
                                           isSubmitted = false;
                                           Navigator.of(context).pop();
                                           nameController.clear();
