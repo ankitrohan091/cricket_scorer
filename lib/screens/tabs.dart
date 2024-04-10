@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gully_cricket/database/providers/team_provider.dart';
+import 'package:gully_cricket/providers/team_provider.dart';
 import 'package:gully_cricket/models/teams_card.dart';
 import 'package:gully_cricket/screens/Home.dart';
 import 'package:gully_cricket/screens/history.dart';
@@ -55,6 +55,7 @@ class _TabsState extends ConsumerState<Tabs> {
                               title: const Text('Create team'),
                               content: TextField(
                                 controller: nameController,
+                                textCapitalization: TextCapitalization.words,
                                 maxLines: 1,
                                 maxLength: 20,
                                 decoration: InputDecoration(

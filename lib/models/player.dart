@@ -1,7 +1,3 @@
-import 'package:uuid/uuid.dart';
-
-const uuid = Uuid();
-
 class Player {
   final String playerId;
   final String name;
@@ -76,6 +72,7 @@ class Player {
   Player.name(
       {required this.name,
       required this.teamId,
+      required this.playerId,
       this.matches = 0,
       this.battingInning = 0,
       this.bestBatting = '_', //temporary
@@ -102,44 +99,9 @@ class Player {
       this.catches = 0,
       this.stumping = 0,
       this.runOut = 0})
-      : playerId = uuid.v4(),
-        strikeRate = battingInning == 0 ? 0.0 : (runs / ballFaced) * 100,
+      : strikeRate = battingInning == 0 ? 0.0 : (runs / ballFaced) * 100,
         averageBatting =
             battingInning == notOut ? 0.0 : runs / (battingInning - notOut),
         economyRate = bowlingInning == 0 ? 0.0 : runGiven / overs,
         averageBowling = wicket == 0 ? 0.0 : runGiven / wicket;
-
-  Map<String, dynamic> toMap() {
-    return {
-      'Player_id': playerId,
-      'Player_name': name,
-      'Team_id': teamId,
-      'Matches': matches,
-      'Batting_inning': battingInning,
-      'Ball_faced': ballFaced,
-      'Runs': runs,
-      'Not_out': notOut,
-      'Best_batting': bestBatting,
-      'Fours': fours,
-      'Sixes': sixes,
-      'Thirty': thirty,
-      'Fifty': fifty,
-      'Hundred': hundred,
-      'Ducks': ducks,
-      'Bowling_inning': bowlingInning,
-      'Overs': overs,
-      'Maiden': maiden,
-      'Wicket': wicket,
-      'Run_given': runGiven,
-      'Best_bowling': bestBowling,
-      'Wides': wides,
-      'No_ball': noBall,
-      'Dot_balled': dotBalled,
-      'Three_wickets': threeWickets,
-      'Five_wickets': fiveWickets,
-      'Catches': catches,
-      'Stumping': stumping,
-      'Run_out': runOut,
-    };
-  }
 }

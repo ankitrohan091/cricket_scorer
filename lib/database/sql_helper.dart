@@ -18,7 +18,7 @@ class SqlHelper {
     await database.execute('''CREATE TABLE Player(
       Player_id TEXT PRIMARY KEY,
       Player_name TEXT NOT NULL,
-      Team_id INTEGER NOT NULL,
+      Team_id TEXT NOT NULL,
       Matches INTEGER NOT NULL DEFAULT 0,
       Batting_inning INTEGER NOT NULL DEFAULT 0,
       Ball_faced INTEGER NOT NULL DEFAULT 0,
@@ -62,13 +62,16 @@ class SqlHelper {
     return db;
   }
 
-  static Future<List<String>> getPlayersName(String teamId) async {
+  static Future<List<Player>> getPlayersName(String teamId) async {
     final db = await openingDatabase();
-    final List<Map<String, dynamic>> names = await db
-        .rawQuery('SELECT Player_name FROM Player WHERE Team_id=?', [teamId]);
-    List<String> namesList = [];
+    final List<Map<String, dynamic>> names = await db.rawQuery(
+        'SELECT Player_name,Player_id FROM Player WHERE Team_id=?', [teamId]);
+    List<Player> namesList = [];
     for (final name in names) {
-      namesList.add(name['Player_name']);
+      namesList.add(Player.name(
+          name: name['Player_name'],
+          playerId: name['Player_id'],
+          teamId: teamId));
     }
     return namesList;
   }
@@ -100,11 +103,50 @@ class SqlHelper {
 
   static Future<void> addPlayer({required Player player}) async {
     final db = await openingDatabase();
-    await db.insert('Player', player.toMap());
+    await db.rawInsert(
+      'INSERT INTO Player('
+      'Player_id, Player_name, Team_id, Matches, Batting_inning, Ball_faced, Runs, '
+      'Not_out, Best_batting, Fours, Sixes, Thirty, Fifty, Hundred, Ducks, '
+      'Bowling_inning, Overs, Maiden, Wicket, Run_given, Best_bowling, '
+      'Wides, No_ball, Dot_balled, Three_wickets, Five_wickets, Catches, '
+      'Stumping, Run_out) '
+      'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        player.playerId,
+        player.name,
+        player.teamId,
+        player.matches,
+        player.battingInning,
+        player.ballFaced,
+        player.runs,
+        player.notOut,
+        player.bestBatting,
+        player.fours,
+        player.sixes,
+        player.thirty,
+        player.fifty,
+        player.hundred,
+        player.ducks,
+        player.bowlingInning,
+        player.overs,
+        player.maiden,
+        player.wicket,
+        player.runGiven,
+        player.bestBowling,
+        player.wides,
+        player.noBall,
+        player.dotBalled,
+        player.threeWickets,
+        player.fiveWickets,
+        player.catches,
+        player.stumping,
+        player.runOut,
+      ],
+    );
   }
 
   static Future<void> deletePlayer({required String playerId}) async {
     final db = await openingDatabase();
-    await db.rawDelete('DELETE FROM PLAYER WHERE Player_id = ?', [playerId]);
+    await db.delete('Player', where: 'Player_id = ?', whereArgs: [playerId]);
   }
 }

@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:gully_cricket/database/providers/team_provider.dart';
-import 'package:gully_cricket/database/sql_helper.dart';
+import 'package:gully_cricket/providers/team_provider.dart';
 import 'package:gully_cricket/screens/player_list.dart';
 
 class Team extends ConsumerWidget {
-  List<String> getNames(String id) {
-    List<String> list = [];
-    SqlHelper.getPlayersName(id).then((value) => list = value);
-    return list;
-  }
-
   const Team({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,7 +25,7 @@ class Team extends ConsumerWidget {
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (ctx) => PlayerList(
-                            list: getNames(teams[index].id),
+                            teamId: teams[index].id,
                             teamName: teams[index].name,
                           )));
                 },
