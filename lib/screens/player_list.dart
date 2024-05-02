@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gully_cricket/database/sql_helper.dart';
 import 'package:gully_cricket/models/player.dart';
 import 'package:gully_cricket/providers/player_provider.dart';
+import 'package:gully_cricket/screens/player_record.dart';
 import 'package:gully_cricket/util/name_validator.dart';
 import 'package:uuid/uuid.dart';
 
@@ -24,6 +26,11 @@ class _PlayerListState extends ConsumerState<PlayerList> {
     final players = ref.watch(playerNotifierProvider(widget.teamId));
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        shape: BeveledRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.greenAccent,
+        splashColor: Colors.black,
+        elevation: 0,
         onPressed: () {
           setState(() {
             showDialog(
@@ -87,46 +94,57 @@ class _PlayerListState extends ConsumerState<PlayerList> {
                 });
           });
         },
-        child: const Icon(Icons.add_box_outlined),
+        child: const Icon(
+          Icons.add,
+          size: 38,
+        ),
       ),
       appBar: AppBar(
         title: Text(widget.teamName),
       ),
-      body: ReorderableListView(
-        onReorder: ((oldIndex, newIndex) {
-          setState(() {
-            if (oldIndex < newIndex) {
-              newIndex -= 1;
-            }
-            Player player = players.removeAt(oldIndex);
-            players.insert(newIndex, player);
-          });
-        }),
-        children: players
-            .asMap()
-            .entries
-            .map((e) => buildCard(e.value, e.key))
-            .toList(),
-      ),
+      body: players.isEmpty
+          ? const Center(
+              child: Text(
+                'Please Add Some Players!',
+                style: TextStyle(fontSize: 24, color: Colors.black),
+              ),
+            )
+          : ReorderableListView(
+              onReorder: ((oldIndex, newIndex) {
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
+                }
+                setState(() {
+                  Player player = players.removeAt(oldIndex);
+                  players.insert(newIndex, player);
+                  SqlHelper.changeIndex(players);
+                });
+              }),
+              children: players
+                  .asMap()
+                  .entries
+                  .map((e) => buildCard(e.value, e.key))
+                  .toList(),
+            ),
     );
   }
 
   Widget buildCard(Player player, int index) {
     return Card(
         key: ValueKey(index),
-        elevation: 8,
-        child: Row(
-          children: [
-            const CircleAvatar(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.green,
-              child: Icon(Icons.person),
-            ),
-            const SizedBox(
-              width: 4,
-            ),
-            Text(player.name),
-            const Spacer(),
+        child: ListTile(
+          key: ValueKey(player.playerId),
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: ((context) => Record(name: player.name))));
+          },
+          leading: const CircleAvatar(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.green,
+            child: Icon(Icons.person),
+          ),
+          title: Text(player.name),
+          trailing: Row(mainAxisSize: MainAxisSize.min, children: [
             IconButton(onPressed: () {}, icon: const Icon(Icons.edit)),
             const SizedBox(
               width: 4,
@@ -138,7 +156,7 @@ class _PlayerListState extends ConsumerState<PlayerList> {
                       .deletePlayer(player);
                 },
                 icon: const Icon(Icons.delete))
-          ],
+          ]),
         ));
   }
 }

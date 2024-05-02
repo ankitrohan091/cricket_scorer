@@ -8,104 +8,116 @@ class Team extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final teams = ref.watch(teamNotifierProvider);
-    return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-        child: ListView.builder(
-          itemCount: teams.length,
-          itemBuilder: (context, index) {
-            if (teams.isEmpty) {
-              return Center(
-                child: Text(
-                  'No Team is added!',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              );
-            } else {
-              return GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (ctx) => PlayerList(
-                            teamId: teams[index].id,
-                            teamName: teams[index].name,
-                          )));
-                },
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                      side: const BorderSide(color: Colors.black, width: 0.6),
-                      borderRadius: BorderRadius.circular(6)),
-                  elevation: 8,
-                  color: Colors.white,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          child: Text('A'),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
+    return teams.isEmpty
+        ? const Center(
+            child: Text(
+              'No Team is Available!',
+              style: TextStyle(color: Colors.black, fontSize: 24),
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+            child: ListView.builder(
+              itemCount: teams.length,
+              itemBuilder: (context, index) {
+                if (teams.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No Team is added!',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  );
+                } else {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (ctx) => PlayerList(
+                                teamId: teams[index].id,
+                                teamName: teams[index].name,
+                              )));
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                          side:
+                              const BorderSide(color: Colors.black, width: 0.6),
+                          borderRadius: BorderRadius.circular(6)),
+                      elevation: 8,
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 6, horizontal: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              teams[index].name,
-                              style: Theme.of(context).textTheme.titleMedium,
+                            const CircleAvatar(
+                              radius: 18,
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              child: Text('A'),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  teams[index].name,
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                                Row(
+                                  children: [
+                                    const Text('Matches: '),
+                                    Text(
+                                      '${teams[index].mathces}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              width: 1,
                             ),
                             Row(
                               children: [
-                                const Text('Matches: '),
+                                const Text('Won: '),
                                 Text(
-                                  '${teams[index].mathces}',
+                                  '${teams[index].won}',
                                   style:
                                       Theme.of(context).textTheme.titleMedium,
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                        const SizedBox(
-                          width: 1,
-                        ),
-                        Row(
-                          children: [
-                            const Text('Won: '),
-                            Text(
-                              '${teams[index].won}',
-                              style: Theme.of(context).textTheme.titleMedium,
+                            Row(
+                              children: [
+                                const Text('Loss: '),
+                                Text(
+                                  '${teams[index].loss}',
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                ),
+                              ],
                             ),
+                            IconButton(
+                                onPressed: () {}, icon: const Icon(Icons.edit)),
+                            IconButton(
+                                onPressed: () {
+                                  ref
+                                      .read(teamNotifierProvider.notifier)
+                                      .deleteTeam(teams[index].id);
+                                },
+                                icon: const Icon(Icons.delete))
                           ],
                         ),
-                        Row(
-                          children: [
-                            const Text('Loss: '),
-                            Text(
-                              '${teams[index].loss}',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
-                        IconButton(
-                            onPressed: () {}, icon: const Icon(Icons.edit)),
-                        IconButton(
-                            onPressed: () {
-                              ref
-                                  .read(teamNotifierProvider.notifier)
-                                  .deleteTeam(teams[index].id);
-                            },
-                            icon: const Icon(Icons.delete))
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              );
-            }
-          },
-        ));
+                  );
+                }
+              },
+            ));
   }
 }

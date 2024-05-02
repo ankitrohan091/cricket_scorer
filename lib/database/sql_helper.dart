@@ -16,7 +16,7 @@ class SqlHelper {
         )''');
 
     await database.execute('''CREATE TABLE Player(
-      Player_id TEXT PRIMARY KEY,
+      Player_id TEXT NOT NULL,
       Player_name TEXT NOT NULL,
       Team_id TEXT NOT NULL,
       Matches INTEGER NOT NULL DEFAULT 0,
@@ -45,6 +45,7 @@ class SqlHelper {
       Catches INTEGER NOT NULL DEFAULT 0,
       Stumping INTEGER NOT NULL DEFAULT 0,
       Run_out INTEGER NOT NULL DEFAULT 0,
+      Idx INTEGER PRIMARY KEY AUTOINCREMENT,
       FOREIGN KEY(Team_id) REFERENCES Teams(Team_id) ON DELETE CASCADE ON UPDATE CASCADE
     )''');
   }
@@ -65,13 +66,15 @@ class SqlHelper {
   static Future<List<Player>> getPlayersName(String teamId) async {
     final db = await openingDatabase();
     final List<Map<String, dynamic>> names = await db.rawQuery(
-        'SELECT Player_name,Player_id FROM Player WHERE Team_id=?', [teamId]);
+        'SELECT Player_name,Player_id FROM Player WHERE Team_id=? ORDER BY Idx',
+        [teamId]);
     List<Player> namesList = [];
     for (final name in names) {
       namesList.add(Player.name(
-          name: name['Player_name'],
-          playerId: name['Player_id'],
-          teamId: teamId));
+        name: name['Player_name'],
+        playerId: name['Player_id'],
+        teamId: teamId,
+      ));
     }
     return namesList;
   }
@@ -88,6 +91,18 @@ class SqlHelper {
           won: teams[index]['Won'],
           loss: teams[index]['Loss']);
     });
+  }
+
+  static Future<void> changeIndex(List<Player> players) async {
+    final db = await openingDatabase();
+    List<Map<String, dynamic>> getOffset =
+        await db.rawQuery('SELECT Idx FROM Player ORDER BY Idx DESC LIMIT 1');
+    int offset = getOffset[0]['Idx'] + 1;
+    offset = offset > 50 ? 0 : offset;
+    for (int i = 0; i < players.length; i++) {
+      await db.rawQuery('UPDATE Player SET Idx=? WHERE Player_id=?',
+          [offset + i, players[i].playerId]);
+    }
   }
 
   static Future<void> addTeam({required TeamsCard team}) async {
